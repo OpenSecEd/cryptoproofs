@@ -1,0 +1,28 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[british]{babel}
+\usepackage[strict]{csquotes}
+\usepackage{acro}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\DeclareMathOperator{\Z}{\mathbb{Z}}
+
+\usepackage[natbib,style=alphabetic,maxbibnames=99]{biblatex}
+\addbibresource{games.bib}
+\addbibresource{crypto.bib}
+
+\usepackage[crypto]{libbib}
+
+\usepackage[noend]{algpseudocode}
+\usepackage{xparse}
+
+\ProvideDocumentEnvironment{question}{o}{%
+  \IfValueTF{#1}{%
+    \begin{alertblock}{Question: #1}
+  }{%
+    \begin{alertblock}{Question}
+  }
+}{%
+  \end{alertblock}
+}

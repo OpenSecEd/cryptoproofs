@@ -1,0 +1,538 @@
+\title{Cryptographic Proofs}
+\subtitle{%
+  Sequences of games
+}
+\author[D. Bosk <dbosk@kth.se>]{Daniel Bosk}
+\institute[KTH CSC]{%
+  School of Computer Science and Communication\\
+  KTH Royal Institute of Technology\\
+  \email{dbosk@kth.se}
+}
+\date{22nd January 2016}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\mode*
+
+\begin{abstract}
+  \input{abstract.tex}
+\end{abstract}
+
+
+\section{Introduction}
+
+\subsection{What to prove?}
+
+\begin{frame}
+  \begin{itemize}
+
+    \item When designing primitives we need to prove their security.
+      \begin{itemize}
+        \item We formalize the properties we want.
+        \item Then prove our model has these properties.
+      \end{itemize}
+
+      \pause{}
+
+    \item Sometimes this can be done as a security game.
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[IND-CPA]
+    Public-key encryption scheme \((\KeygenOp, \EncOp, \DecOp)\).
+    \begin{enumerate}
+        
+        \pause{}
+
+      \item \((\PubKey{}, \PriKey{})\gets \Keygen{}\), give \(\PubKey{}\) to 
+        adversary \(A\).
+
+        \pause{}
+
+      \item \(A\) chooses \(m_0, m_1\in M\) and gives back to challenger.
+
+        \pause{}
+
+      \item Challenger computes \(b\rgets \{0, 1\}, \psi\rgets \Enc[\PubKey{}]{ 
+            m_b }\), gives \(psi\) to \(A\).
+
+        \pause{}
+
+      \item \(A\) computes \(\hat{b}\), if \(\hat{b} = b\) the adversary wins 
+        the game.
+
+    \end{enumerate}
+
+    \pause{}
+
+    Let the IND-CPA advantage of \(A\) be \(|\Pr( b = \hat{b} 
+      ) - \frac{1}{2}|\) be the adversary's advantage.
+  \end{example}
+\end{frame}
+
+\subsection{Two approaches}
+
+\begin{frame}
+  \begin{itemize}
+      \item There are basically two approaches to this.
+        \begin{itemize}
+          \item That of Shoup~\cite{Shoup2004Sequences}.
+          \item That of Bellare and Rogaway~\cite{Bellare2004CodeBased}.
+        \end{itemize}
+
+        \pause{}
+
+      \item They are essentially equivalent.
+
+        \pause{}
+
+      \item Previous example was Shoup style.
+
+      \item Next is the same Bellare-Rogaway style.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[IND-CPA]
+    \begin{algorithmic}
+      \Function{Initialize}{}
+        \State{$(\PubKey{},\PriKey{})\rgets \Keygen{}, b\rgets \{0, 1\}$}
+        \State{\Return{$\PubKey{}$}}
+      \EndFunction{}
+
+      \pause{}
+
+      \Statex{}
+
+      \Function{LR}{$m_0, m_1$}
+        \State{$c\rgets \Enc[\PriKey{}]{ m_b }$, \Return{$c$}}
+      \EndFunction{}
+
+      \pause{}
+      \Statex{}
+
+      \Function{Deinitialize}{$\hat{b}$}
+        \State{\Return{$(\hat{b} = b)$}}
+      \EndFunction{}
+    \end{algorithmic}
+
+    \pause{}
+
+    Let the IND-CPA advantage of \(A\) be \(|\Pr( b = \hat{b} 
+      ) - \frac{1}{2}|\) be the adversary's advantage.
+  \end{example}
+\end{frame}
+
+
+\section{Sequences of Games}
+
+\subsection{The basic idea}
+
+\begin{frame}
+  \begin{block}{Players}
+    \begin{itemize}
+      \item Attack game played between adversary and challenger.
+      \item Both probabilistic processes communicating with each other.
+    \end{itemize}
+  \end{block}
+
+  \pause{}
+
+  \begin{block}{Security}
+    \begin{itemize}
+      \item Event \(S\).
+      \item For every \emph{polynomial-time} adversary \dots
+      \item \dots \(\Pr(S)\) is \emph{negligibly close to} some \enquote{target 
+          probability}.
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Proving}
+    \begin{itemize}
+      \item Let Game 0 be the original game (adversary versus primitive),
+        \(S_0 = S\).
+
+        \pause{}
+
+      \item Construct Game 1 with \(S_1\) such that \(|\Pr(S_0) - \Pr(S_1)|\) 
+        is negligible.
+
+        \pause{}
+
+      \item \dots
+
+      \item Construct Game \(n\) with \(S_n\) such that \(\Pr(S_n)\) is the 
+        target probability.
+
+        \pause{}
+
+      \item \color{red} Since \(n\) is constant, it follows that \(\Pr(S)\) is 
+        negligibly close to the target probability.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{question}
+    \begin{enumerate}
+      \item Why is this?
+      \item Is it because we don't know if the (countably) infinite sum of 
+        negligible differences is negligible in a polynomial security 
+        parameter?
+    \end{enumerate}
+  \end{question}
+\end{frame}
+
+\begin{frame}
+  \begin{itemize}
+    \item If changes between games are small.
+    \item Then we can analyse them better.
+  \end{itemize}
+\end{frame}
+
+\subsection{Techniques for transitioning between games}
+
+\begin{frame}
+  \begin{itemize}
+    \item Transitions based on indistinguishability
+
+    \item Transitions based on failure events
+
+    \item Bridging steps
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Indistinguishability}
+    \begin{itemize}
+      \item The Hybrid Argument
+      \item Show that if the adversary can win, then the adversary can 
+        distinguish two indistinguishable distributions.
+
+        \pause{}
+
+      \item \color{red} Show that \(|\Pr(S_i) - \Pr(S_{i+1})|\) is negligible.
+    \end{itemize}
+  \end{block}
+
+  \begin{question}
+    Is that correct?
+  \end{question}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Failure event}
+    \begin{itemize}
+
+      \item \(F\) is sometimes a security assumption:
+        \begin{itemize}
+          \item Adversary found collision in hash function.
+          \item Adversary forged \iac{MAC}.
+        \end{itemize}
+
+        \pause{}
+
+      \item Sometimes purely information theoretic argument.
+
+      \item Sometimes \(F\) requires its own sequence of games.
+
+        \pause{}
+
+      \item \color{red} Show that \(|\Pr(S_i) - \Pr(S_{i+1})|\leq \Pr(F)\), and 
+        we might \enquote{know} that \(\Pr(F)\) is negligible.
+
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{lemma}[Difference Lemma]
+    \begin{itemize}
+      \item \(A, B, F\) events in some distribution.
+      \item Suppose \(A\land \lnot F\iff B\land \lnot F\).
+      \item Then \(|\Pr(A) - \Pr(B)|\leq \Pr(F)\).
+    \end{itemize}
+  \end{lemma}
+\end{frame}
+
+\begin{frame}
+  \begin{proof}
+    \small
+    \begin{align*}
+      |\Pr(A) - \Pr(B)|
+      &= |\Pr(A\land F) + \Pr(A\land \lnot F)
+      - \Pr(B\land F) - \Pr(B\land \lnot F)| \\
+      &= \color{blue} [\text{assumption } \Pr(A\land\lnot F) = \Pr(B\land\lnot 
+      F)] \\
+      &= |\Pr(A\land F) - \Pr(B\land F)| \\
+      &\leq \color{blue} [ \Pr(A\land F)\leq \Pr(F), \Pr(B\land F)\leq \Pr(F) 
+      ] \\
+      &\leq \Pr(F).
+    \end{align*}
+  \end{proof}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Bridging step}
+    \begin{itemize}
+      \item This is simply a transformation and we prove their equivalence.
+      \item This is useful for making the proof easier to read.
+
+        \pause{}
+
+      \item \color{red} Show that \(\Pr(S_i) = \Pr(S_{i+1})\).
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{An example of ElGamal encryption}
+
+\begin{frame}
+  \begin{example}[ElGamal scheme]
+    Group \(G\) of prime order \(q\), \(\langle\gamma\rangle = G\).
+    \begin{description}
+      \item[Keygen] \(x\rgets \Z_q\) then
+        \(\alpha\gets \gamma^x, \PubKey{}\gets \alpha, \PriKey{}\gets x\).
+
+      \item[Enc] \(m\in G\), then \(y\rgets \Z_q, \beta\gets \gamma^y, 
+          \delta\gets \alpha^y\) and
+        \(\zeta\gets \delta\cdot m, \psi\gets (\beta, \zeta)\).
+
+      \item[Dec] \(m\gets \zeta/\beta^x = \alpha^y m/\beta^x = (\gamma^x)^y 
+          m/(\gamma^y)^x = \gamma^{xy}m/\gamma^{xy} = m\).
+    \end{description}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{itemize}
+    \item ElGamal is semantically secure (IND-CPA) under \ac{DDH}.
+    \item Thus we plug ElGamal into the IND-CPA game from above.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[ElGamal in IND-CPA, Game 0]
+    \begin{enumerate}
+      \item \(x\rgets \Z_q, \alpha\gets\gamma^x\)
+      \item \(r\rgets R, (m_0, m_1)\gets A(r, \alpha)\)
+      \item \(b\rgets \{0,1\}, y\rgets \Z_q,
+          {\color{blue} \beta\gets \gamma^y, \delta\gets \alpha^y,
+          \zeta\gets \delta\cdot m_b}\)
+      \item \(\hat{b}\gets A(r,
+          \alpha = \gamma^x, \beta = \gamma^y, \zeta = \gamma^{xy}\cdot m_b)\)
+    \end{enumerate}
+    \(S_0\) is event \(b = \hat{b}\), thus advantage is \(|\Pr(S_0) 
+      - \frac{1}{2}|\).
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[DDH in IND-CPA, Game 1]
+    \begin{enumerate}
+      \item \(x\rgets \Z_q, \alpha\gets\gamma^x\)
+      \item \(r\rgets R, (m_0, m_1)\gets A(r, \alpha)\)
+      \item \(b\rgets \{0,1\}, y\rgets \Z_q,
+          {\color{blue} \beta\gets \gamma^y,
+            {\color{red} z\rgets \Z_q, \delta\gets \gamma^z},
+          \zeta\gets \delta\cdot m_b}\)
+      \item \(\hat{b}\gets A(r,
+          \alpha = \gamma^x, \beta = \gamma^y, \zeta = {\color{red} \gamma^z} 
+          \cdot m_b)\)
+    \end{enumerate}
+    \(S_1\) is event \(b = \hat{b}\), thus advantage is \(|\Pr(S_1) 
+      - \frac{1}{2}|\).
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Claim 1}
+    \(\Pr(S_1) = \frac{1}{2}\), i.e.\ no better than random guessing.
+  \end{block}
+
+  \begin{proof}[Proof sketch]
+    \begin{itemize}
+      \item \(\delta\) in Game 1 is a one-time pad.
+      \item Thus \(\hat{b}\) is independent from \(b\).
+    \end{itemize}
+  \end{proof}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Claim 2}
+    \(|\Pr(S_0) - \Pr(S_1)| = \epsilon_{DDH}\), i.e.\ negligible under 
+    \ac{DDH}.
+  \end{block}
+
+  \begin{proof}[Proof sketch]
+    \begin{itemize}
+      \item Game 0: \((\gamma^x, \gamma^y, \gamma^{xy})\),
+        Game 1: \((\gamma^x, \gamma^y, \gamma^z)\).
+
+      \item Define algorithm \(D\) that uses \(A\) to distinguish between Game 
+        0 and Game 1.
+
+        \pause{}
+
+        \begin{itemize}
+          \item \(\Pr[ x, y\rgets \Z_q : D(\gamma^x, \gamma^y, \gamma^{xy} 
+              ) = 1 ] = \Pr(S_0)\)
+
+          \item \(\Pr[ x, y, z\rgets Z_q : D(\gamma^x, \gamma^y, \gamma^z) 
+              = 1 ] = \Pr(S_1)\)
+        \end{itemize}
+
+      \item \color{red} Thus \ac{DDH} advantage of \(D\) is \(|\Pr(S_0) 
+          - \Pr(S_1)|\).
+    \end{itemize}
+  \end{proof}
+\end{frame}
+
+\begin{frame}
+  \begin{question}
+    Is that because the advantage in \ac{DDH} is
+    \begin{multline*}
+      |\overbrace{\Pr[ x, y\rgets \Z_q : D(\gamma^x, \gamma^y, \gamma^{xy} 
+        ) = 1 ]}^{\Pr(S_0)}\\
+      - \underbrace{\Pr[ x, y, z\rgets Z_q : D(\gamma^x, \gamma^y, \gamma^z) 
+        = 1 ]}_{\Pr(S_1)}|
+    \end{multline*}
+  \end{question}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Algorithm}
+    \begin{algorithmic}
+      \Function{D}{$\alpha, \beta, \delta$}
+        \State{$r\rgets R, (m_0, m_1)\gets A(r, \alpha)$}
+        %\Comment{Use \(A\) that breaks ElGamal}
+        \State{$b\rgets \{0,1\}, \zeta\gets \delta\cdot m_b$}
+        \State{$\hat{b}\gets A(r, \alpha, \beta, \zeta)$}
+        %\Comment{Use \(A\) to break DDH}
+        \If{$b = \hat{b}$}
+          \State{\Return{1}}
+        \Else{}
+          \State{\Return{0}}
+        \EndIf{}
+      \EndFunction{}
+    \end{algorithmic}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{proof}[Proof ElGamal is IND-CPA]
+    Combine Claim 1 and Claim 2.
+  \end{proof}
+\end{frame}
+
+% XXX Add examples from AuthEncryption
+%\subsection{An example from Authenticated Encryption}
+%
+%% XXX Add example of a failure event
+%\begin{frame}
+%  \begin{example}[Failure event]
+%    \dots
+%  \end{example}
+%\end{frame}
+
+
+\section{Discussion}
+
+\subsection{Comments}
+
+\begin{frame}
+  \begin{itemize}
+    \item I like Shoup's clarity concerning the adversary algorithm \(A\).
+    \item However, Bellare has (many) easy real-world examples in a few papers.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Recommended reading}
+    \begin{itemize}
+      \item \fullcite{AuthEncryption}
+      \item \fullcite{StatefulDecryption}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Questions}
+
+\begin{frame}
+  \begin{block}{Statement}
+    \begin{itemize}
+      \item Best if two successive games are defined on the same underlying 
+        probability space.
+
+      \item Good practice to have all games in a sequence defined on the same 
+        probability space.
+    \end{itemize}
+  \end{block}
+
+  \begin{definition}[Probability space]
+    \begin{itemize}
+      \item Sample space \(\Omega\), set of all outcomes.
+      \item Set of events \(E\), each event contains one of more outcomes.
+      \item \(\Pr\colon E\to [0, 1]\).
+    \end{itemize}
+  \end{definition}
+\end{frame}
+
+\begin{frame}
+  \begin{question}
+    \begin{enumerate}
+      \item How do we determine the probability space of a game?
+        The players?
+
+      \item\label{ExampleDifferentSpaces} An example of two games that are 
+        defined on different probability spaces?
+    \end{enumerate}
+  \end{question}
+
+  \begin{example}[Question~\ref{ExampleDifferentSpaces}]
+    \begin{itemize}
+      \item Events \(A, B, F_1, F_2\).
+      \item \(\Pr(A\land \lnot F_1) = \Pr(B\land \lnot F_2)\) and \(\Pr(F_1) 
+          = \Pr(F_2)\).
+      \item Then \(|\Pr(A) - \Pr(B)|\leq \Pr(F_1) = \Pr(F_2)\).
+    \end{itemize}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[Hashed ElGamal]
+    \begin{enumerate}
+      \item Hashed ElGamal in IND-CPA game
+      \item\label{ElGamalToDDH} Transform ElGamal to DDH
+      \item\label{HashToRandom} Transform hash value to random value.
+    \end{enumerate}
+  \end{example}
+
+  \begin{question}
+    \begin{itemize}
+      \item Does the order of step~\ref{ElGamalToDDH} and~\ref{HashToRandom} 
+        matter?
+      \item Or is it just about what's easiest to follow?
+    \end{itemize}
+  \end{question}
+\end{frame}
+
+\begin{frame}
+  \begin{question}
+    Any other thoughts, comments or questions?
+  \end{question}
+\end{frame}
+
+
+%%% REFERENCES %%%
+
+\begin{frame}[allowframebreaks]
+  \printbibliography{}
+\end{frame}
