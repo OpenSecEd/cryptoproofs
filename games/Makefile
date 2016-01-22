@@ -11,7 +11,7 @@ games-notes.pdf: games-notes.tex ${SRC}
 games-slides.pdf: games-slides.tex ${SRC}
 
 
-INCLUDE_MAKEFILES=makefiles
+INCLUDE_MAKEFILES=../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk
-INCLUDE_LIBBIB=libbib
+INCLUDE_LIBBIB=../libbib
 include ${INCLUDE_LIBBIB}/libbib.mk
