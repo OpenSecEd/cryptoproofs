@@ -1,5 +1,5 @@
 .PHONY: all
-all: games-slides.pdf
+all: games-notes.pdf games-slides.pdf
 
 SRC=		games-preamble.tex games.bib
 SRC+=		abstract.tex games-content.tex
